@@ -1,0 +1,50 @@
+---
+- name: Install apps ubuntu for kubeadm
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Check ping
+      ansible.builtin.ping:
+
+    - name: Update the apt
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install packages needed to use the Kubernetes apt repository.
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gpg
+
+    - name: Create directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download the public signing key for the Kubernetes package repositories
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.33/deb/Release.key |
+        gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add the appropriate Kubernetes apt repository
+      ansible.builtin.shell: |
+        echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.33/deb/ /' | 
+        tee /etc/apt/sources.list.d/kubernetes.list
+
+    - name: Update the apt package
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install kubelet, kubeadm
+      ansible.builtin.apt:
+        name:
+          - kubelet
+          - kubeadm 
+        state: present
+
+    - name: Stop update kubelet, kubeadm
+      ansible.builtin.shell: apt-mark hold kubelet kubeadm
