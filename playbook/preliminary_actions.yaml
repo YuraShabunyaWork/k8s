@@ -1,0 +1,137 @@
+---
+- name: Preliminary_actions
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Check connection
+      ansible.builtin.ping:
+
+    - name: Disable firewalld (RHEL only)
+      ansible.builtin.service:
+        name: firewalld
+        state: stopped
+        enabled: false
+      when: ansible_os_family == "RedHat"
+
+    - name: Disable swap
+      ansible.builtin.shell: swapoff -a
+    
+    - name: Comment out swap line in /etc/fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^\s*(?!#).*swap'
+        line: '# \g<0>'
+        backrefs: yes
+        state: present
+
+    - name: Set SELinux to permissive (RHEL only)
+      ansible.posix.selinux:
+        state: permissive
+      when: ansible_os_family == "RedHat"
+ 
+    - name: Load br_netfilter module immediately
+      ansible.builtin.shell: modprobe br_netfilter
+
+    - name: Ensure br_netfilter module loads on boot
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/modules-kubernetes.conf
+        content: "br_netfilter\n"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable kernel parmeters for Kubernetes
+      ansible.builtin.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: yes
+      loop:
+        - { name: 'net.ipv4.ip_forward', value: '1' }
+        - { name: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+        - { name: 'net.ipv4.ip_nonlocal_bind', value: '1' }
+
+    - name: Add Kubernetes YUM repository
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: Base programs for k8s
+        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+        gpgcheck: yes
+        gpgkey:
+          - https://packages.cloud.google.com/yum/doc/yum-key.gpg
+          - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        enabled: yes
+      when: ansible_os_family == "RedHat"
+
+    - name: Install dependencies (Debian-based only)
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - chrony
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install containerd package
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+        update_cache: yes
+
+    - name: Create crictl config
+      ansible.builtin.copy:
+        dest: /etc/crictl.yaml
+        content: |
+          runtime-endpoint: "unix:///run/containerd/containerd.sock"
+          image-endpoint:   "unix:///run/containerd/containerd.sock"
+          timeout:          0
+          debug:            false
+          pull-image-on-create:  false
+          disable-pull-on-run:  false
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Generate containerd default config
+      ansible.builtin.command: containerd config default
+      register: containerd_config
+      changed_when: false
+
+    - name: Ensure /etc/containerd directory exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+
+    - name: Generate containerd default config
+      ansible.builtin.command: containerd config default
+      register: containerd_config
+      changed_when: false
+
+    - name: Write containerd config.toml
+      ansible.builtin.copy:
+        dest: /etc/containerd/config.toml
+        content: "{{ containerd_config.stdout }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable SystemdCgroup = true
+      ansible.builtin.replace:
+        path: /etc/containerd/config.toml
+        regexp: '^(\s*)SystemdCgroup = false'
+        replace: '\1SystemdCgroup = true'
+
+    - name: Enable NTP, Time synchronization on cluster servers
+      ansible.builtin.service:
+        name: chronyd
+        enabled: true
+        state: started
+
+    - name: Restart and enable containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+        enabled: true
