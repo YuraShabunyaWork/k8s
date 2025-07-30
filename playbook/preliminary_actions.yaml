@@ -71,6 +71,7 @@
           - ca-certificates
           - curl
           - chrony
+          - gpg
         update_cache: yes
       when: ansible_os_family == "Debian"
 

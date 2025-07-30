@@ -1,0 +1,35 @@
+---
+- name: Install and config keepalived
+  hosts: controls
+  become: yes
+  vars:
+    virtual_ip: 172.16.0.170
+    interface: ens192
+    vrrp_id: 51
+
+  tasks:
+    - name: Check connection
+      ansible.builtin.ping:
+
+    - name: Install keepalived
+      ansible.builtin.apt:
+        name: keepalived
+        state: present
+        update_cache: true
+
+    - name: Configuration keepalived
+      ansible.builtin.template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Start keepalived
+      ansible.builtin.service:
+        name: keepalived
+        enabled: true
+        state: restarted
+
+
+      

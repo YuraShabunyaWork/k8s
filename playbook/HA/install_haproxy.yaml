@@ -1,0 +1,25 @@
+---
+- name: Install and config HAProxy
+  hosts: controls
+  become: yes
+
+  tasks:
+    - name: Install HAProxy
+      ansible.builtin.apt:
+        name: haproxy
+        state: present
+        update_cache: true
+      
+    - name: Config HAProxy
+      ansible.builtin.template:
+        src: haproxy.conf.j2
+        dest: /etc/haproxy/haproxy.cfg
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Start HAProxy
+      ansible.builtin.service:
+        name: haproxy
+        enabled: true
+        state: restarted 

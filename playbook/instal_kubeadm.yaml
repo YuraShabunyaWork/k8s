@@ -11,14 +11,6 @@
       ansible.builtin.apt:
         update_cache: yes
 
-    - name: Install packages needed to use the Kubernetes apt repository.
-      ansible.builtin.apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gpg
-
     - name: Create directory
       ansible.builtin.file:
         path: /etc/apt/keyrings

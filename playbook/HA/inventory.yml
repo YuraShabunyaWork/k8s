@@ -1,0 +1,14 @@
+controls:
+  hosts:
+    master1:
+      ansible_host: control1.shabunya.local
+      keepalived_state: MASTER
+      keepalived_priority: 101
+    master2:
+      ansible_host: control2.shabunya.local
+      keepalived_state: BACKUP
+      keepalived_priority: 100
+    master3:
+      ansible_host: control3.shabunya.local
+      keepalived_state: BACKUP
+      keepalived_priority: 100
