@@ -1,0 +1,41 @@
+ipam:
+  mode: "cluster-pool"
+  operator:
+    clusterPoolIPv4PodCIDRList: ["10.244.0.0/16"]
+    clusterPoolIPv4MaskSize: 24
+
+ipv4:
+  enabled: true
+ipv6:
+  enabled: false
+
+enableIPv4Masquerade: true
+enableIPv6Masquerade: true
+
+k8sServiceHost: 172.16.0.170
+k8sServicePort: 7443
+
+hubble: 
+  enabled:  true
+  listenAddress: ":4244"
+  relay:
+    enabled: true
+  ui:
+    enabled:  true
+  peerService:
+    clusterDomain: cluster.local
+  metrics:  
+    enableOpenMetrics: true
+    enabled:
+    - dns:query;ignoreAAAA
+    - drop
+    - flow
+    - flows-to-world
+    - httpV2:exemplars=true;labelsContext=source_ip,source_namespace,source_workload,destination_ip,destination_namespace,destination_workload,traffic_direction
+    - icmp
+    - port-distribution
+    - tcp
+
+tls:
+  server:
+    relayName: relay.cilium.svc.cluster.local

@@ -1,3 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    k8s-app: flannel
+    pod-security.kubernetes.io/enforce: privileged
+  name: kube-flannel
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -5,7 +12,7 @@ metadata:
   labels:
     k8s-app: flannel
   name: flannel
-  namespace: kube-system
+  namespace: kube-flannel
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -48,7 +55,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: flannel
-  namespace: kube-system
+  namespace: kube-flannel
 ---
 apiVersion: v1
 data:
@@ -74,7 +81,7 @@ data:
     }
   net-conf.json: |
     {
-      "Network": "10.233.0.0/16",
+      "Network": "10.244.0.0/16",
       "EnableNFTables": false,
       "Backend": {
         "Type": "vxlan"
@@ -87,7 +94,7 @@ metadata:
     k8s-app: flannel
     tier: node
   name: kube-flannel-cfg
-  namespace: kube-system
+  namespace: kube-flannel
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -97,7 +104,7 @@ metadata:
     k8s-app: flannel
     tier: node
   name: kube-flannel-ds
-  namespace: kube-system
+  namespace: kube-flannel
 spec:
   selector:
     matchLabels:
