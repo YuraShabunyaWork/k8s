@@ -1,0 +1,28 @@
+---
+- name: Install CNI plagin
+  hosts: all
+  become: yes
+
+  tasks:
+  - name: Create folder
+    ansible.builtin.file:
+      path: /opt/cni/bin
+      state: directory
+      mode: 0755
+
+  - name: Download and extract CNI plugins
+    ansible.builtin.unarchive:
+      src: https://github.com/containernetworking/plugins/releases/download/v1.7.0/cni-plugins-linux-amd64-v1.7.0.tgz
+      dest: /opt/cni/bin
+      remote_src: true
+      creates: /opt/cni/bin/loopback
+
+  - name: Restart kubelet
+    ansible.builtin.service:
+      name: kubelet
+      state: restarted
+
+  - name: Restart containerd
+    ansible.builtin.service:
+      name: containerd
+      state: restarted
