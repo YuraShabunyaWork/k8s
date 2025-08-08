@@ -1,0 +1,44 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: dev-ca-ss
+  namespace: cert-manager
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: dev-ca
+  namespace: cert-manager
+spec:
+  isCA: true
+  duration: 87600h
+  subject:
+    organizations:
+      - "Yura's dev"
+    organizationalUnits:
+      - "Home lab"
+    localities:
+      - "Minsk"
+    countries:
+      - "RU"
+  commonName: "Yura home CA"
+  secretName: dev-ca
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 4096
+  issuerRef:
+    name: dev-ca-ss
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: dev-ca-issuer
+spec:
+  ca:
+    secretName: dev-ca

@@ -1,0 +1,177 @@
+## Custom resource configuration
+crds:
+  # -- Keep CRDs on chart uninstall
+  keep: false
+
+## Globally shared configuration
+global:
+  # -- Default domain used by all components
+  ## Used for ingresses, certificates, SSO, notifications, etc.
+  domain: argocd-dev.shabunya.local
+  # Default image used by all components
+  image:
+    # -- If defined, a repository applied to all Argo CD deployments
+    repository: quay.io/argoproj/argocd
+    # -- Overrides the global Argo CD image tag whose default is the chart appVersion
+    tag: ""
+  # Default logging options used by all components
+  logging:
+    # -- Set the global logging format. Either: `text` or `json`
+    format: json
+    # -- Set the global logging level. One of: `debug`, `info`, `warn` or `error`
+    level: info
+  # -- Default node selector for all components
+  nodeSelector:
+    kubernetes.io/os: linux
+  # Default affinity preset for all components
+  affinity:
+    # -- Default pod anti-affinity rules. Either: `none`, `soft` or `hard`
+    podAntiAffinity: soft
+    # Node affinity rules
+    nodeAffinity:
+      # -- Default node affinity rules. Either: `none`, `soft` or `hard`
+      type: hard
+      # -- Default match expressions for node affinity
+      matchExpressions: []
+        # - key: topology.kubernetes.io/zone
+        #   operator: In
+        #   values:
+        #    - antarctica-east1
+        #    - antarctica-west1
+
+## Argo Configs
+configs:
+  params:
+    # -- Run server without TLS
+    ## NOTE: This value should be set when you generate params by other means as it changes ports used by ingress template.
+    server.insecure: true
+
+  tls:
+    certificates:
+      myserver-ca: |
+        -----BEGIN CERTIFICATE-----
+        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
+        zf+usb51MR6MEzbHwubXhhesEUS25PYdFQ==
+        -----END CERTIFICATE-----
+
+  # -- Repositories list to be used by applications
+  ## Creates a secret for each key/value specified below to create repositories
+  ## Note: the last example in the list would use a repository credential template, configured under "configs.credentialTemplates".
+  repositories:
+    yura-repo:
+      url: https://github.com/YuraShabunyaWork/k8s
+      name: YuraShabunya
+      type: git
+  # Argo CD sensitive data
+  # Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/#sensitive-data-and-sso-client-secrets
+  secret:
+    # -- Bcrypt hashed admin password
+    ## Argo expects the password in the secret to be bcrypt hashed. You can create this hash with
+    ## `htpasswd -nbBC 10 "" $ARGO_PWD | tr -d ':\n' | sed 's/$2y/$2a/'`
+    argocdServerAdminPassword: "$2a$10$JXTPL95Ivl1Ks84FxnAlgOo739sRqTJREWbAjCmxTLU8DbaISY262"
+    # -- Admin password modification time. Eg. `"2006-01-02T15:04:05Z"`
+    # @default -- `""` (defaults to current time)
+    argocdServerAdminPasswordMtime: ""
+
+## Application controller
+controller:
+  replicas: 1
+
+redis:
+  enabled: true
+  
+## Server
+server:
+  # -- Argo CD server name
+  name: server
+  # -- The number of server pods to run
+  replicas: 1
+  # TLS certificate configuration via cert-manager
+  ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/tls/#tls-certificates-used-by-argocd-server
+  certificate:
+    # -- Deploy a Certificate resource (requires cert-manager)
+    enabled: true
+    # -- Certificate primary domain (commonName)
+    # @default -- `""` (defaults to global.domain)
+    domain: argocd-dev.shabunya.local
+    # -- The requested 'duration' (i.e. lifetime) of the certificate.
+    # @default -- `""` (defaults to 2160h = 90d if not specified)
+    ## Ref: https://cert-manager.io/docs/usage/certificate/#renewal
+    duration: 9125h
+    # -- How long before the expiry a certificate should be renewed.
+    # @default -- `""` (defaults to 360h = 15d if not specified)
+    ## Ref: https://cert-manager.io/docs/usage/certificate/#renewal
+    renewBefore: 360h
+    # Certificate issuer
+    ## Ref: https://cert-manager.io/docs/concepts/issuer
+    issuer:
+      # -- Certificate issuer group. Set if using an external issuer. Eg. `cert-manager.io`
+      group: cert-manager.io
+      # -- Certificate issuer kind. Either `Issuer` or `ClusterIssuer`
+      kind: ClusterIssuer
+      # -- Certificate issuer name. Eg. `letsencrypt`
+      name: dev-ca-issuer
+    # Private key of the certificate
+    privateKey:
+      # -- Rotation policy of private key when certificate is re-issued. Either: `Never` or `Always`
+      rotationPolicy: Always
+      # -- The private key cryptography standards (PKCS) encoding for private key. Either: `PCKS1` or `PKCS8`
+      encoding: PKCS8
+      # -- Algorithm used to generate certificate private key. One of: `RSA`, `Ed25519` or `ECDSA`
+      algorithm: RSA
+      # -- Key bit size of the private key. If algorithm is set to `Ed25519`, size is ignored.
+      size: 4096
+    # -- Usages for the certificate
+    ### Ref: https://cert-manager.io/docs/reference/api-docs/#cert-manager.io/v1.KeyUsage
+    usages: 
+      - server auth
+
+ # Argo CD server ingress configuration
+  ingress:
+    # -- Enable an ingress resource for the Argo CD server
+    enabled: true
+    # -- Additional ingress annotations
+    ## Ref: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#option-1-ssl-passthrough
+    annotations: 
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # -- Defines which ingress controller will implement the resource
+    ingressClassName: "system-ingress"
+    # -- Argo CD server hostname
+    # @default -- `""` (defaults to global.domain)
+    hostname: argocd-dev.shabunya.local
+    # -- The path to Argo CD server
+    path: /
+    # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
+    pathType: Prefix
+    # -- Enable TLS configuration for the hostname defined at `server.ingress.hostname`
+    ## TLS certificate will be retrieved from a TLS secret `argocd-server-tls`
+    ## You can create this secret via `certificate` or `certificateSecret` option
+    tls: true

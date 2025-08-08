@@ -1,0 +1,43 @@
+controller:
+  ingressClassResource:
+    # -- Name of the IngressClass
+    name: system-ingress
+    # -- Create the IngressClass or not
+    enabled: true
+    # -- If true, Ingresses without `ingressClassName` get assigned to this IngressClass on creation.
+    # Ingress creation gets rejected if there are multiple default IngressClasses.
+    # Ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#default-ingress-class
+    default: true
+    # -- Annotations to be added to the IngressClass resource.
+    controllerValue: k8s.io/ingress-nginx
+
+  replicaCount: 1
+  minAvailable: 1
+  resources:
+    ##  limits:
+    ##    cpu: 100m
+    ##    memory: 90Mi
+    requests:
+      cpu: 100m
+      memory: 90Mi
+
+  service:
+    enabled: true
+    type: LoadBalancer
+    externalIPs: 
+      - 172.16.0.170
+
+  admissionWebhooks:
+    enabled: false
+
+  metrics:
+    port: 10254
+    portName: metrics
+    # if this port is changed, change healthz-port: in extraArgs: accordingly
+    enabled: true
+    service:
+      # -- Enable the metrics service or not.
+      enabled: true
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"

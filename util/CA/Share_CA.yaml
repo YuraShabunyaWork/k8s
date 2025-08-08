@@ -1,0 +1,27 @@
+---
+- name: Share CA and Install
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /usr/local/share/ca-certificates/extra
+      state: directory
+      mode: '0755'
+
+  - name: Copy CA
+    ansible.builtin.copy:
+      src: /root/k8s/util/CA/ca.crt
+      dest: /usr/local/share/ca-certificates/extra/dev-ca.crt
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Update system CA store
+    ansible.builtin.command: 
+      cmd: update-ca-certificates
+    
+  - name: Reboot cluster node
+    ansible.builtin.reboot:
+      reboot_timeout: 600

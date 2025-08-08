@@ -1,0 +1,12 @@
+1) Add helm repo
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+
+2) kubectl create ns argo-cd
+
+3) kubectl create secret generic -n argo-cd dev-ca-certs --from-file=dev-ca.pem=ca.crt
+
+4) Install
+helm install argo-cd argo/argo-cd \
+-n argo-cd \
+-f argo-cd-values.yaml
