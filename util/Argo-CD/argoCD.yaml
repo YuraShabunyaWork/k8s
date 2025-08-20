@@ -154,7 +154,7 @@ server:
     usages: 
       - server auth
 
- # Argo CD server ingress configuration
+# Argo CD server ingress configuration
   ingress:
     # -- Enable an ingress resource for the Argo CD server
     enabled: true

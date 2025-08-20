@@ -1,0 +1,20 @@
+# 1) namespace (если ещё нет)
+kubectl create namespace flux-system
+
+2) установить source crds
+kubectl apply -f https://github.com/fluxcd/source-controller/releases/latest/download/source-controller.crds.yaml -n flux-system
+
+3) Скачать source-controller и дабавить аккаунт
+wget https://github.com/fluxcd/source-controller/releases/latest/download/source-controller.deployment.yaml 
+
+4) Создать аккаутн в кластере
+kubectl apply -f addAccount.yaml
+kubectl apply -f source-controller.deployment.yaml
+
+5) CRD для helm-controller
+kubectl apply -f https://github.com/fluxcd/helm-controller/releases/latest/download/helm-controller.crds.yaml -n flux-system
+
+6) установить сам helm-controller
+kubectl apply -f https://github.com/fluxcd/helm-controller/releases/latest/download/helm-controller.deployment.yaml -n flux-system
+
+
